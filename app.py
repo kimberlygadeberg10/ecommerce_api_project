@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 
@@ -10,11 +10,16 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # 🧠 Initialize tools
 db = SQLAlchemy(app)
+ma = Marshmallow(app)
+
+# 🔗 Association table (Many-to-Many)
 order_product = db.Table(
     'order_product',
     db.Column('order_id', db.Integer, db.ForeignKey('order.id'), primary_key=True),
     db.Column('product_id', db.Integer, db.ForeignKey('product.id'), primary_key=True)
 )
+
+# 👤 USER MODEL
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
@@ -22,8 +27,11 @@ class User(db.Model):
     email = db.Column(db.String(120), unique=True)
 
     orders = db.relationship('Order', backref='user', lazy=True)
-    class Order(db.Model):
-        id = db.Column(db.Integer, primary_key=True)
+
+
+# 🧾 ORDER MODEL
+class Order(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
     order_date = db.Column(db.DateTime)
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
@@ -31,27 +39,36 @@ class User(db.Model):
     products = db.relationship(
         'Product',
         secondary=order_product,
-        lazy='subquery',
         backref=db.backref('orders', lazy=True)
     )
-    class Product(db.Model):
-        id = db.Column(db.Integer, primary_key=True)
+
+
+# 📦 PRODUCT MODEL
+class Product(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
     product_name = db.Column(db.String(100))
     price = db.Column(db.Float)
-ma = Marshmallow(app)
 
+
+# 🧪 SCHEMAS
 class UserSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = User
         include_fk = True
+
+
 class ProductSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Product
-        class OrderSchema(ma.SQLAlchemyAutoSchema):
-                    class Meta:
-                        model = Order
-                        include_fk = True
-                        
+
+
+class OrderSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Order
+        include_fk = True
+
+
+# 📦 Schema instances
 user_schema = UserSchema()
 users_schema = UserSchema(many=True)
 
@@ -61,13 +78,81 @@ products_schema = ProductSchema(many=True)
 order_schema = OrderSchema()
 orders_schema = OrderSchema(many=True)
 
-# 👋 Test route
+
+# 👤 USER ROUTES
+@app.route('/users', methods=['GET'])
+def get_users():
+    users = User.query.all()
+    return jsonify(users_schema.dump(users))
+
+
+@app.route('/users/<int:id>', methods=['GET'])
+def get_user(id):
+    user = User.query.get(id)
+
+    if not user:
+        return jsonify({"message": "User not found"}), 404
+
+    return jsonify(user_schema.dump(user))
+
+
+@app.route('/users', methods=['POST'])
+def create_user():
+    data = request.json
+
+    new_user = User(
+        name=data['name'],
+        address=data['address'],
+        email=data['email']
+    )
+
+    db.session.add(new_user)
+    db.session.commit()
+
+    return jsonify(user_schema.dump(new_user)), 201
+
+
+@app.route('/users/<int:id>', methods=['PUT'])
+def update_user(id):
+    user = User.query.get(id)
+
+    if not user:
+        return jsonify({"message": "User not found"}), 404
+
+    data = request.json
+
+    user.name = data.get('name', user.name)
+    user.address = data.get('address', user.address)
+    user.email = data.get('email', user.email)
+
+    db.session.commit()
+
+    return jsonify(user_schema.dump(user))
+
+
+@app.route('/users/<int:id>', methods=['DELETE'])
+def delete_user(id):
+    user = User.query.get(id)
+
+    if not user:
+        return jsonify({"message": "User not found"}), 404
+
+    db.session.delete(user)
+    db.session.commit()
+
+    return jsonify({"message": "User deleted"})
+
+
+# 👋 HOME ROUTE
 @app.route('/')
 def home():
     return {"message": "E-commerce API is running!"}
 
+
+# 🚀 RUN APP (FIXED ORDER)
 if __name__ == '__main__':
-    app.run(debug=True)
     with app.app_context():
         db.create_all()
-    print("Database tables created!")
+        print("Database tables created!")
+
+    app.run(debug=True)
