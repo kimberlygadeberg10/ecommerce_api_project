@@ -40,6 +40,27 @@ class User(db.Model):
     price = db.Column(db.Float)
 ma = Marshmallow(app)
 
+class UserSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = User
+        include_fk = True
+class ProductSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Product
+        class OrderSchema(ma.SQLAlchemyAutoSchema):
+                    class Meta:
+                        model = Order
+                        include_fk = True
+                        
+user_schema = UserSchema()
+users_schema = UserSchema(many=True)
+
+product_schema = ProductSchema()
+products_schema = ProductSchema(many=True)
+
+order_schema = OrderSchema()
+orders_schema = OrderSchema(many=True)
+
 # 👋 Test route
 @app.route('/')
 def home():
