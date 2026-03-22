@@ -5,7 +5,7 @@ from flask_marshmallow import Marshmallow
 app = Flask(__name__)
 
 # 🔌 Database connection
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:Pass1234#@localhost/ecommerce_api'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:Pass1234%23@localhost/ecommerce_api'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # 🧠 Initialize tools
@@ -141,6 +141,62 @@ def delete_user(id):
     db.session.commit()
 
     return jsonify({"message": "User deleted"})
+
+@app.route('/products', methods=['GET'])
+def get_products():
+    products = Product.query.all()
+    return jsonify(products_schema.dump(products))
+
+@app.route('/products/<int:id>', methods=['GET'])
+def get_product(id):
+    product = Product.query.get(id)
+
+    if not product:
+        return jsonify({"message": "Product not found"}), 404
+
+    return jsonify(product_schema.dump(product))
+
+@app.route('/products', methods=['POST'])
+def create_product():
+    data = request.json
+
+    new_product = Product(
+        product_name=data['product_name'],
+        price=data['price']
+    )
+
+    db.session.add(new_product)
+    db.session.commit()
+
+    return jsonify(product_schema.dump(new_product)), 201
+
+@app.route('/products/<int:id>', methods=['PUT'])
+def update_product(id):
+    product = Product.query.get(id)
+
+    if not product:
+        return jsonify({"message": "Product not found"}), 404
+
+    data = request.json
+
+    product.product_name = data.get('product_name', product.product_name)
+    product.price = data.get('price', product.price)
+
+    db.session.commit()
+
+    return jsonify(product_schema.dump(product))
+
+@app.route('/products/<int:id>', methods=['DELETE'])
+def delete_product(id):
+    product = Product.query.get(id)
+
+    if not product:
+        return jsonify({"message": "Product not found"}), 404
+
+    db.session.delete(product)
+    db.session.commit()
+
+    return jsonify({"message": "Product deleted"})
 
 
 # 👋 HOME ROUTE
