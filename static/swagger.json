@@ -1,0 +1,151 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Flask E-commerce API",
+    "description": "API documentation for managing users, products, and orders in an e-commerce system.",
+    "version": "1.0.0"
+  },
+  "host": "127.0.0.1:5000",
+  "basePath": "/",
+  "schemes": ["http"],
+  "tags": [
+    {
+      "name": "Users",
+      "description": "Endpoints for managing users"
+    },
+    {
+      "name": "Products",
+      "description": "Endpoints for managing products"
+    },
+    {
+      "name": "Orders",
+      "description": "Endpoints for managing orders"
+    }
+  ],
+  "definitions": {
+    "User": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "example": 1
+        },
+        "name": {
+          "type": "string",
+          "example": "Kimberly Gadeberg"
+        },
+        "address": {
+          "type": "string",
+          "example": "123 Main Street"
+        },
+        "email": {
+          "type": "string",
+          "example": "kimberly@example.com"
+        }
+      }
+    },
+    "UserInput": {
+      "type": "object",
+      "required": ["name", "address", "email"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "example": "Kimberly Gadeberg"
+        },
+        "address": {
+          "type": "string",
+          "example": "123 Main Street"
+        },
+        "email": {
+          "type": "string",
+          "example": "kimberly@example.com"
+        }
+      }
+    },
+    "Product": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "example": 1
+        },
+        "product_name": {
+          "type": "string",
+          "example": "Laptop"
+        },
+        "price": {
+          "type": "number",
+          "format": "float",
+          "example": 999.99
+        }
+      }
+    },
+    "ProductInput": {
+      "type": "object",
+      "required": ["product_name", "price"],
+      "properties": {
+        "product_name": {
+          "type": "string",
+          "example": "Laptop"
+        },
+        "price": {
+          "type": "number",
+          "format": "float",
+          "example": 999.99
+        }
+      }
+    },
+    "Order": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "example": 1
+        },
+        "order_date": {
+          "type": "string",
+          "format": "date-time",
+          "example": "2026-03-28T21:43:04"
+        },
+        "user_id": {
+          "type": "integer",
+          "example": 1
+        }
+      }
+    },
+    "OrderInput": {
+      "type": "object",
+      "required": ["user_id", "order_date"],
+      "properties": {
+        "user_id": {
+          "type": "integer",
+          "example": 1
+        },
+        "order_date": {
+          "type": "string",
+          "format": "date-time",
+          "example": "2026-03-28T21:43:04"
+        }
+      }
+    },
+    "Message": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "example": "Operation completed successfully"
+        }
+      }
+    },
+    "Error": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string",
+          "example": "Resource not found"
+        }
+      }
+    }
+  },
+  "paths": {}
+}
