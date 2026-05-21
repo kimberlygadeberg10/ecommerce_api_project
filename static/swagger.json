@@ -433,6 +433,196 @@
           }
         }
       }
+    },
+    "/orders": {
+      "post": {
+        "tags": ["Orders"],
+        "summary": "Create a new order",
+        "description": "Create a new order for an existing user. Requires a user ID and order date.",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Order object that needs to be created",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/OrderInput"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Order created successfully",
+            "schema": {
+              "$ref": "#/definitions/Order"
+            }
+          },
+          "400": {
+            "description": "Invalid order input",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/orders/{order_id}/add_product/{product_id}": {
+      "put": {
+        "tags": ["Orders"],
+        "summary": "Add product to order",
+        "description": "Add an existing product to an existing order. Duplicate products in the same order are prevented.",
+        "parameters": [
+          {
+            "name": "order_id",
+            "in": "path",
+            "description": "ID of the order",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "product_id",
+            "in": "path",
+            "description": "ID of the product to add",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product added to order successfully",
+            "schema": {
+              "$ref": "#/definitions/Message"
+            }
+          },
+          "400": {
+            "description": "Product already exists in this order",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Order or product not found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/orders/{order_id}/remove_product/{product_id}": {
+      "delete": {
+        "tags": ["Orders"],
+        "summary": "Remove product from order",
+        "description": "Remove a product from an existing order.",
+        "parameters": [
+          {
+            "name": "order_id",
+            "in": "path",
+            "description": "ID of the order",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "product_id",
+            "in": "path",
+            "description": "ID of the product to remove",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product removed from order successfully",
+            "schema": {
+              "$ref": "#/definitions/Message"
+            }
+          },
+          "400": {
+            "description": "Product is not in this order",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Order or product not found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/orders/user/{user_id}": {
+      "get": {
+        "tags": ["Orders"],
+        "summary": "Get all orders for a user",
+        "description": "Retrieve every order that belongs to a specific user.",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "description": "ID of the user whose orders should be retrieved",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Orders retrieved successfully",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Order"
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/orders/{order_id}/products": {
+      "get": {
+        "tags": ["Orders"],
+        "summary": "Get products for an order",
+        "description": "Retrieve all products attached to a specific order.",
+        "parameters": [
+          {
+            "name": "order_id",
+            "in": "path",
+            "description": "ID of the order",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Products retrieved successfully",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Product"
+              }
+            }
+          },
+          "404": {
+            "description": "Order not found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
     }
   }
 }
