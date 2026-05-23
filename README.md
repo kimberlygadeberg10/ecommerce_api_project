@@ -99,3 +99,54 @@ Relationship behavior
 Kimberly Gadeberg
 🏁 Final Notes
 This project demonstrates how to build a fully functional REST API with relational database design, including handling complex relationships and ensuring data integrity.
+
+## Swagger API Documentation
+
+This project includes Swagger documentation for the Flask E-commerce API. Swagger provides a browser-based interface where users can view the available API routes, see required request data, review response formats, and understand how each endpoint works.
+
+### Swagger URL
+
+After starting the Flask server, open:
+
+```txt
+http://127.0.0.1:5000/api/docs
+
+Documented Route Groups
+
+The Swagger documentation includes routes for:
+
+Users
+Products
+Orders
+
+User Endpoints
+Method	Endpoint	Description
+GET	/users	Retrieve all users
+GET	/users/{id}	Retrieve one user by ID
+POST	/users	Create a new user
+PUT	/users/{id}	Update an existing user
+DELETE	/users/{id}	Delete a user
+
+Product Endpoints
+Method	Endpoint	Description
+GET	/products	Retrieve all products
+GET	/products/{id}	Retrieve one product by ID
+POST	/products	Create a new product
+PUT	/products/{id}	Update an existing product
+DELETE	/products/{id}	Delete a product
+
+Order Endpoints
+Method	Endpoint	Description
+POST	/orders	Create a new order for a user
+PUT	/orders/{order_id}/add_product/{product_id}	Add a product to an order
+DELETE	/orders/{order_id}/remove_product/{product_id}	Remove a product from an order
+GET	/orders/user/{user_id}	Retrieve all orders for a specific user
+GET	/orders/{order_id}/products	Retrieve all products in a specific order
+
+Swagger Features Added
+Registered a Swagger blueprint in the Flask app
+Created a static/swagger.json file
+Added definitions for User, Product, Order, Message, and Error responses
+Added paths for all required API endpoints
+Documented request bodies, path parameters, success responses, and error responses
+

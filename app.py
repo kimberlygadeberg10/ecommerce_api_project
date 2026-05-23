@@ -4,26 +4,31 @@ from flask_marshmallow import Marshmallow
 from flask_swagger_ui import get_swaggerui_blueprint
 from datetime import datetime
 
+
 # =========================
-# 🚀 APP SETUP
+# APP SETUP
 # =========================
 
 app = Flask(__name__)
 
-# 🔌 Connect Flask to MySQL database
-# %23 = encoded "#" in password
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:Phoenix0350#@localhost/ecommerce_api'
+# Connect Flask to MySQL database
+# If your password has a # symbol, replace it with %23
+# Example: Phoenix0350# becomes Phoenix0350%23
+app.config["SQLALCHEMY_DATABASE_URI"] = (
+    "mysql+mysqlconnector://root:Phoenix0350%23@localhost/ecommerce_api"
+)
 
-# 🚫 Disable tracking modifications (saves memory, not needed for this project)
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# Disable tracking modifications because it is not needed for this project
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 # Initialize SQLAlchemy and Marshmallow
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
 
-# ---------------------------------------------------------
+
+# =========================
 # SWAGGER CONFIGURATION
-# ---------------------------------------------------------
+# =========================
 
 SWAGGER_URL = "/api/docs"
 API_URL = "/static/swagger.json"
@@ -39,9 +44,9 @@ swagger_blueprint = get_swaggerui_blueprint(
 app.register_blueprint(swagger_blueprint, url_prefix=SWAGGER_URL)
 
 
-# ---------------------------------------------------------
+# =========================
 # ASSOCIATION TABLE
-# ---------------------------------------------------------
+# =========================
 # This table connects orders and products.
 # One order can have many products.
 # One product can belong to many orders.
@@ -54,15 +59,13 @@ order_product = db.Table(
 )
 
 
-# ---------------------------------------------------------
+# =========================
 # DATABASE MODELS
-# ---------------------------------------------------------
+# =========================
 
 class User(db.Model):
-    # Table name in MySQL
     __tablename__ = "users"
 
-    # User columns
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(100), nullable=False)
     address = db.Column(db.String(200), nullable=False)
@@ -73,10 +76,8 @@ class User(db.Model):
 
 
 class Order(db.Model):
-    # Table name in MySQL
     __tablename__ = "orders"
 
-    # Order columns
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     order_date = db.Column(db.DateTime, nullable=False)
 
@@ -92,18 +93,16 @@ class Order(db.Model):
 
 
 class Product(db.Model):
-    # Table name in MySQL
     __tablename__ = "products"
 
-    # Product columns
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     product_name = db.Column(db.String(100), nullable=False)
     price = db.Column(db.Float, nullable=False)
 
 
-# ---------------------------------------------------------
+# =========================
 # MARSHMALLOW SCHEMAS
-# ---------------------------------------------------------
+# =========================
 
 class UserSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
@@ -115,8 +114,6 @@ class OrderSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Order
         load_instance = True
-
-        # This is required so Marshmallow includes user_id
         include_fk = True
 
 
@@ -137,9 +134,9 @@ product_schema = ProductSchema()
 products_schema = ProductSchema(many=True)
 
 
-# ---------------------------------------------------------
+# =========================
 # HOME ROUTE
-# ---------------------------------------------------------
+# =========================
 
 @app.route("/")
 def home():
@@ -148,12 +145,11 @@ def home():
     })
 
 
-# ---------------------------------------------------------
+# =========================
 # USER ENDPOINTS
-# ---------------------------------------------------------
+# =========================
 
 # GET /users
-# Retrieve all users
 @app.route("/users", methods=["GET"])
 def get_users():
     users = User.query.all()
@@ -161,7 +157,6 @@ def get_users():
 
 
 # GET /users/<id>
-# Retrieve a user by ID
 @app.route("/users/<int:id>", methods=["GET"])
 def get_user(id):
     user = User.query.get(id)
@@ -173,7 +168,6 @@ def get_user(id):
 
 
 # POST /users
-# Create a new user
 @app.route("/users", methods=["POST"])
 def create_user():
     data = request.get_json()
@@ -208,7 +202,6 @@ def create_user():
 
 
 # PUT /users/<id>
-# Update a user by ID
 @app.route("/users/<int:id>", methods=["PUT"])
 def update_user(id):
     user = User.query.get(id)
@@ -231,7 +224,6 @@ def update_user(id):
 
 
 # DELETE /users/<id>
-# Delete a user by ID
 @app.route("/users/<int:id>", methods=["DELETE"])
 def delete_user(id):
     user = User.query.get(id)
@@ -245,12 +237,11 @@ def delete_user(id):
     return jsonify({"message": "User deleted successfully"}), 200
 
 
-# ---------------------------------------------------------
+# =========================
 # PRODUCT ENDPOINTS
-# ---------------------------------------------------------
+# =========================
 
 # GET /products
-# Retrieve all products
 @app.route("/products", methods=["GET"])
 def get_products():
     products = Product.query.all()
@@ -258,7 +249,6 @@ def get_products():
 
 
 # GET /products/<id>
-# Retrieve a product by ID
 @app.route("/products/<int:id>", methods=["GET"])
 def get_product(id):
     product = Product.query.get(id)
@@ -270,7 +260,6 @@ def get_product(id):
 
 
 # POST /products
-# Create a new product
 @app.route("/products", methods=["POST"])
 def create_product():
     data = request.get_json()
@@ -298,7 +287,6 @@ def create_product():
 
 
 # PUT /products/<id>
-# Update a product by ID
 @app.route("/products/<int:id>", methods=["PUT"])
 def update_product(id):
     product = Product.query.get(id)
@@ -322,7 +310,6 @@ def update_product(id):
 
 
 # DELETE /products/<id>
-# Delete a product by ID
 @app.route("/products/<int:id>", methods=["DELETE"])
 def delete_product(id):
     product = Product.query.get(id)
@@ -336,12 +323,11 @@ def delete_product(id):
     return jsonify({"message": "Product deleted successfully"}), 200
 
 
-# ---------------------------------------------------------
+# =========================
 # ORDER ENDPOINTS
-# ---------------------------------------------------------
+# =========================
 
 # POST /orders
-# Create a new order
 @app.route("/orders", methods=["POST"])
 def create_order():
     data = request.get_json()
@@ -381,7 +367,6 @@ def create_order():
 
 
 # PUT /orders/<order_id>/add_product/<product_id>
-# Add a product to an order
 @app.route("/orders/<int:order_id>/add_product/<int:product_id>", methods=["PUT"])
 def add_product_to_order(order_id, product_id):
     order = Order.query.get(order_id)
@@ -407,7 +392,6 @@ def add_product_to_order(order_id, product_id):
 
 
 # DELETE /orders/<order_id>/remove_product/<product_id>
-# Remove a product from an order
 @app.route("/orders/<int:order_id>/remove_product/<int:product_id>", methods=["DELETE"])
 def remove_product_from_order(order_id, product_id):
     order = Order.query.get(order_id)
@@ -433,7 +417,6 @@ def remove_product_from_order(order_id, product_id):
 
 
 # GET /orders/user/<user_id>
-# Get all orders for a user
 @app.route("/orders/user/<int:user_id>", methods=["GET"])
 def get_orders_by_user(user_id):
     user = User.query.get(user_id)
@@ -447,7 +430,6 @@ def get_orders_by_user(user_id):
 
 
 # GET /orders/<order_id>/products
-# Get all products for an order
 @app.route("/orders/<int:order_id>/products", methods=["GET"])
 def get_products_by_order(order_id):
     order = Order.query.get(order_id)
@@ -458,18 +440,17 @@ def get_products_by_order(order_id):
     return products_schema.jsonify(order.products), 200
 
 
-# ---------------------------------------------------------
+# =========================
 # CREATE DATABASE TABLES
-# ---------------------------------------------------------
-# This creates the tables in MySQL if they do not already exist.
+# =========================
 
 with app.app_context():
     db.create_all()
 
 
-# ---------------------------------------------------------
+# =========================
 # RUN THE APP
-# ---------------------------------------------------------
+# =========================
 
 if __name__ == "__main__":
     app.run(debug=True)

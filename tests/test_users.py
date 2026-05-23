@@ -1,5 +1,10 @@
 # Import the Flask app from app.py
+from uuid import uuid4
 from app import app
+
+
+def unique_email(prefix):
+    return f"{prefix}_{uuid4().hex}@example.com"
 
 
 # Test GET /users
@@ -18,7 +23,7 @@ def test_create_user():
     response = client.post("/users", json={
         "name": "Test User",
         "address": "123 Test Street",
-        "email": "testuser1@example.com"
+        "email": unique_email("testuser")
     })
 
     assert response.status_code in [200, 201]
@@ -32,8 +37,10 @@ def test_get_user_by_id():
     create_response = client.post("/users", json={
         "name": "Get User Test",
         "address": "456 Test Avenue",
-        "email": "getuser1@example.com"
+        "email": unique_email("getuser")
     })
+
+    assert create_response.status_code in [200, 201]
 
     user_id = create_response.get_json()["id"]
 
@@ -50,15 +57,17 @@ def test_update_user():
     create_response = client.post("/users", json={
         "name": "Old Name",
         "address": "789 Test Road",
-        "email": "updateuser1@example.com"
+        "email": unique_email("updateuser")
     })
+
+    assert create_response.status_code in [200, 201]
 
     user_id = create_response.get_json()["id"]
 
     response = client.put(f"/users/{user_id}", json={
         "name": "Updated Name",
         "address": "789 Test Road",
-        "email": "updateuser1@example.com"
+        "email": unique_email("updateduser")
     })
 
     assert response.status_code == 200
@@ -72,8 +81,10 @@ def test_delete_user():
     create_response = client.post("/users", json={
         "name": "Delete User",
         "address": "321 Delete Lane",
-        "email": "deleteuser1@example.com"
+        "email": unique_email("deleteuser")
     })
+
+    assert create_response.status_code in [200, 201]
 
     user_id = create_response.get_json()["id"]
 
