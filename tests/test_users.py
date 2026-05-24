@@ -1,4 +1,4 @@
-# Import the Flask app from app.py
+import unittest
 from uuid import uuid4
 from app import app
 
@@ -7,97 +7,88 @@ def unique_email(prefix):
     return f"{prefix}_{uuid4().hex}@example.com"
 
 
-# Test GET /users
-def test_get_users():
-    client = app.test_client()
+class TestUserRoutes(unittest.TestCase):
 
-    response = client.get("/users")
+    def setUp(self):
+        self.client = app.test_client()
 
-    assert response.status_code == 200
+    # Test GET /users
+    def test_get_users(self):
+        response = self.client.get("/users")
 
+        self.assertEqual(response.status_code, 200)
 
-# Test POST /users
-def test_create_user():
-    client = app.test_client()
+    # Test POST /users
+    def test_create_user(self):
+        response = self.client.post("/users", json={
+            "name": "Test User",
+            "address": "123 Test Street",
+            "email": unique_email("testuser")
+        })
 
-    response = client.post("/users", json={
-        "name": "Test User",
-        "address": "123 Test Street",
-        "email": unique_email("testuser")
-    })
+        self.assertIn(response.status_code, [200, 201])
+        self.assertEqual(response.get_json()["name"], "Test User")
 
-    assert response.status_code in [200, 201]
-    assert response.get_json()["name"] == "Test User"
+    # Test GET /users/<id>
+    def test_get_user_by_id(self):
+        create_response = self.client.post("/users", json={
+            "name": "Get User Test",
+            "address": "456 Test Avenue",
+            "email": unique_email("getuser")
+        })
 
+        self.assertIn(create_response.status_code, [200, 201])
 
-# Test GET /users/<id>
-def test_get_user_by_id():
-    client = app.test_client()
+        user_id = create_response.get_json()["id"]
 
-    create_response = client.post("/users", json={
-        "name": "Get User Test",
-        "address": "456 Test Avenue",
-        "email": unique_email("getuser")
-    })
+        response = self.client.get(f"/users/{user_id}")
 
-    assert create_response.status_code in [200, 201]
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json()["id"], user_id)
 
-    user_id = create_response.get_json()["id"]
+    # Test PUT /users/<id>
+    def test_update_user(self):
+        create_response = self.client.post("/users", json={
+            "name": "Old Name",
+            "address": "789 Test Road",
+            "email": unique_email("updateuser")
+        })
 
-    response = client.get(f"/users/{user_id}")
+        self.assertIn(create_response.status_code, [200, 201])
 
-    assert response.status_code == 200
-    assert response.get_json()["id"] == user_id
+        user_id = create_response.get_json()["id"]
 
+        response = self.client.put(f"/users/{user_id}", json={
+            "name": "Updated Name",
+            "address": "789 Test Road",
+            "email": unique_email("updateduser")
+        })
 
-# Test PUT /users/<id>
-def test_update_user():
-    client = app.test_client()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json()["name"], "Updated Name")
 
-    create_response = client.post("/users", json={
-        "name": "Old Name",
-        "address": "789 Test Road",
-        "email": unique_email("updateuser")
-    })
+    # Test DELETE /users/<id>
+    def test_delete_user(self):
+        create_response = self.client.post("/users", json={
+            "name": "Delete User",
+            "address": "321 Delete Lane",
+            "email": unique_email("deleteuser")
+        })
 
-    assert create_response.status_code in [200, 201]
+        self.assertIn(create_response.status_code, [200, 201])
 
-    user_id = create_response.get_json()["id"]
+        user_id = create_response.get_json()["id"]
 
-    response = client.put(f"/users/{user_id}", json={
-        "name": "Updated Name",
-        "address": "789 Test Road",
-        "email": unique_email("updateduser")
-    })
+        response = self.client.delete(f"/users/{user_id}")
 
-    assert response.status_code == 200
-    assert response.get_json()["name"] == "Updated Name"
+        self.assertEqual(response.status_code, 200)
 
+    # Negative test: GET /users/<id> with an ID that does not exist
+    def test_get_user_not_found(self):
+        response = self.client.get("/users/999999")
 
-# Test DELETE /users/<id>
-def test_delete_user():
-    client = app.test_client()
-
-    create_response = client.post("/users", json={
-        "name": "Delete User",
-        "address": "321 Delete Lane",
-        "email": unique_email("deleteuser")
-    })
-
-    assert create_response.status_code in [200, 201]
-
-    user_id = create_response.get_json()["id"]
-
-    response = client.delete(f"/users/{user_id}")
-
-    assert response.status_code == 200
+        self.assertEqual(response.status_code, 404)
 
 
-# BONUS NEGATIVE TEST:
-# Test GET /users/<id> with an ID that does not exist
-def test_get_user_not_found():
-    client = app.test_client()
-
-    response = client.get("/users/999999")
-
-    assert response.status_code == 404
+if __name__ == "__main__":
+    unittest.main()
