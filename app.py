@@ -1,3 +1,4 @@
+import os
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
@@ -12,12 +13,11 @@ from datetime import datetime
 app = Flask(__name__)
 
 # Connect Flask to MySQL database
-# If your password has a # symbol, replace it with %23
-# Example: Phoenix0350# becomes Phoenix0350%23
-app.config["SQLALCHEMY_DATABASE_URI"] = (
+import os
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
+    "DATABASE_URL",
     "mysql+mysqlconnector://root:Phoenix0350%23@localhost/ecommerce_api"
 )
-
 # Disable tracking modifications because it is not needed for this project
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
