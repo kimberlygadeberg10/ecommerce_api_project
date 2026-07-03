@@ -11,13 +11,15 @@ from datetime import datetime
 # =========================
 
 app = Flask(__name__)
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "cb440ce828da11a9fae52ac9a7668fc6179e294c6fdf125a0bbc1f5b4702f01a") 
 
 # Connect Flask to MySQL database
 import os
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv(
     "DATABASE_URL",
-    "mysql+mysqlconnector://root:Phoenix0350%23@localhost/ecommerce_api"
+    "sqlite:///local.db"
 )
+
 # Disable tracking modifications because it is not needed for this project
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
@@ -27,6 +29,7 @@ ma = Marshmallow(app)
 
 
 # =========================
+
 # SWAGGER CONFIGURATION
 # =========================
 
