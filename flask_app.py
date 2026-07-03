@@ -11,7 +11,7 @@ from datetime import datetime
 # =========================
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "cb440ce828da11a9fae52ac9a7668fc6179e294c6fdf125a0bbc1f5b4702f01a") 
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev-secret-key") 
 
 # Connect Flask to MySQL database
 import os
