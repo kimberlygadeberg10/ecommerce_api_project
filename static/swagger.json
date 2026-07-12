@@ -5,9 +5,9 @@
     "description": "API documentation for managing users, products, and orders in an e-commerce system.",
     "version": "1.0.0"
   },
-  "host": "127.0.0.1:5000",
+  "host": "ecommerce-api-project.onrender.com",
   "basePath": "/",
-  "schemes": ["http"],
+  "schemes": ["https"],
   "tags": [
     {
       "name": "Users",
