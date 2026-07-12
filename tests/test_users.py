@@ -1,6 +1,6 @@
 import unittest
 from uuid import uuid4
-from app import app
+from flask_app import app
 
 
 def unique_email(prefix):
